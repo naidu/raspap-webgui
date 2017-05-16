@@ -19,11 +19,11 @@ We'd be curious to hear about how you use this with your own Pi-powered access p
  - [License](#license)
 
 ## Prerequisites
-You need to install some extra software in order for the Raspberry Pi to act as a WiFi router and access point. If all you're interested in is configuring your RPi as a client on an existing WiFi network, you can skip this step. 
+You need to install some extra software in order for the Raspberry Pi to act as a WiFi router and access point. If all you're interested in is configuring your RPi as a client on an existing WiFi network, you can skip this step.
 
 There are many guides available to help you select a WiFi adapter, install a compatible driver, configure HostAPD and so on. The details are outside the scope of this project, although I've had consistently good results with the [**Edimax Wireless 802.11b/g/n nano USB adapter**](http://www.edimax.com/edimax/merchandise/merchandise_detail/data/edimax/global/wireless_adapters_n150/ew-7811un) – it's small, cheap and easy to work with.
 
-To configure your RPi as a WiFi router, either of these resources will start you on the right track: 
+To configure your RPi as a WiFi router, either of these resources will start you on the right track:
 * [**How-To: Use The Raspberry Pi As A Wireless Access Point/Router Part 1**](http://sirlagz.net/2012/08/09/how-to-use-the-raspberry-pi-as-a-wireless-access-pointrouter-part-1/)
 * [**How-To: Turn a Raspberry Pi into a WiFi router**](http://raspberrypihq.com/how-to-turn-a-raspberry-pi-into-a-wifi-router/) (uses isc-dhcp-server instead of dnsmasq)
 
@@ -50,6 +50,15 @@ Start off by installing lighttpd, php5, hostapd and dnsmasq.
 ```sh
 $ sudo apt-get install lighttpd php5-cgi hostapd dnsmasq
 ```
+
+Make sure that hostapd is configured properly.
+```sh
+Add below lines to /etc/default/hostapd
+DAEMON_CONF=/etc/hostapd/hostapd.conf
+
+$ sudo touch /etc/hostapd/hostapd.conf
+```
+
 After that, enable PHP for lighttpd and restart it for the settings to take effect.
 ```sh
 sudo lighty-enable-mod fastcgi-php
@@ -57,7 +66,7 @@ sudo service lighttpd restart
 ```
 Now comes the fun part. For security reasons, the `www-data` user which lighttpd runs under is not allowed to start or stop daemons, or run commands like ifdown and ifup, all of which we want our page to do.
 So what I have done is added the `www-data` user to the sudoers file, but with restrictions on what commands the user can run.
-Add the following to the end of  `/etc/sudoers`: 
+Add the following to the end of  `/etc/sudoers`:
 
 ```sh
 www-data ALL=(ALL) NOPASSWD:/sbin/ifdown wlan0
